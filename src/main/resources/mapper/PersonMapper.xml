@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.company.mybatisdemo.mapper.PersonMapper">
+
+    <resultMap id="findmap" type="org.company.mybatisdemo.entity.Person">
+        <id property="id" column="id"/>
+        <result property="name" column="name" />
+        <result property="age" column="age"/>
+        <result property="loverColor" column="lover_color"/>
+    </resultMap>
+    <insert id="insert">
+        insert into person (name,age)
+        values (#{name},#{age})
+    </insert>
+    <insert id="insert1">
+        insert into person (id, name, age, love_color)
+        values (null, #{person.name}, #{person.age}, #{person.loveColor})
+    </insert>
+
+
+<!--    <update id="updateById">-->
+<!--        update person-->
+<!--        set name=#{name},-->
+<!--            age=#{age}-->
+<!--        where id = #{id}-->
+<!--    </update>-->
+
+    <update id="updateById">
+        update person
+        <set>
+            <if test="age!=null">
+                age = #{age},
+            </if>
+            <if test="name!=null">
+                name = #{name},
+            </if>
+            <if test="loveColor!=null">
+                love_color = #{loveColor},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <delete id="deleteById">
+        delete
+        from person
+        where id=#{id}
+    </delete>
+<!--    <delete id="deleteByIds">-->
+<!--            delete from person where id in(-->
+<!--                <foreach collection="array" item="item" separator=",">-->
+<!--                    ${item}-->
+<!--                </foreach>-->
+<!--                )-->
+<!--    </delete>-->
+
+<!--    <delete id="deleteByIds">-->
+<!--        delete from person-->
+<!--        <foreach collection="array" open="where id in (" close=")" item="item" separator=",">-->
+<!--            ${item}-->
+<!--        </foreach>-->
+
+<!--    </delete>-->
+
+    <delete id="deleteByIds">
+        delete from person
+        <where>
+            <if test="list !=null and list.size>0">
+                <foreach collection="list" item="id" open="and id in (" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+
+        </where>
+    </delete>
+
+
+    <select id="findByPerson" resultType="org.company.mybatisdemo.entity.Person">
+    select * from person
+    <where>
+        <if test="name !=null">
+            and name =#{name}
+        </if>
+        <if test="age !=null">
+            and age =#{age}
+        </if>
+        <if test="loveColor !=null">
+            and love_color like "%${loveColor}%"
+        </if>
+    </where>
+    </select>
+
+
+
+    <select id="find2" resultType="org.company.mybatisdemo.entity.Person">
+        select  * from person where age <![CDATA[<=]]>42
+    </select>
+
+    <select id="find1" resultType="org.company.mybatisdemo.entity.Person">
+        select * from ${tableName}
+    </select>
+
+    <sql id="colums">
+        id,name,age,love_color
+    </sql>
+
+    <select id="find" resultType="org.company.mybatisdemo.entity.Person">
+        select
+            <include refid="colums"></include>
+            from person
+    </select>
+    <select id="findById" parameterType="int" resultType="org.company.mybatisdemo.entity.Person">
+        select *
+        from person
+        where id = #{id}
+    </select>
+    <select id="total" resultType="long">
+        select count(id)
+        from person;
+    </select>
+</mapper>
